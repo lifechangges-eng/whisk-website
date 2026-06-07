@@ -1,0 +1,1280 @@
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1A1C20" />
+<title>WHISK · Little Bites &amp; Big Bliss · Postres Artesanales · Medellín</title>
+<meta name="description" content="WHISK — repostería artesanal en Medellín. Pequeños bocados, grandes momentos. Pedidos por WhatsApp." />
+<meta property="og:title" content="WHISK · Little Bites & Big Bliss" />
+<meta property="og:description" content="Repostería artesanal en Medellín. Creando momentos dulces e inolvidables." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://wisks.co/og.jpg" />
+
+<!-- FASE 10 — preconnect para CDNs externos (fonts, Three.js, GSAP) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://unpkg.com" />
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+<!-- dns-prefetch como fallback para browsers que no soporten preconnect -->
+<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+<!-- Tipografía editorial premium — Playfair (títulos), Manrope (cuerpo), Barlow Condensed (subheads), Pinyon Script (decorativo), Libre Baskerville italic (citas) -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Pinyon+Script&family=Manrope:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;500;600&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet" />
+
+<!-- FASE 10 — Critical CSS first (styles.css), rest async -->
+<link rel="stylesheet" href="./styles.css" />
+
+<!-- Lenis smooth scroll (local node_modules build — UMD, exposes global Lenis) -->
+<script src="./node_modules/lenis/dist/lenis.min.js"></script>
+
+<!-- GSAP UMD (sync) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<!-- Three.js r160 via ES modules + import map -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ========== PRELOADER ========== -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader-inner">
+    <svg class="preloader-whisk" viewBox="0 0 60 80" aria-hidden="true">
+      <path d="M30 6 L30 38" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="30" cy="56" rx="18" ry="22" stroke="currentColor" stroke-width="1.4" fill="none"/>
+      <path d="M16 40 Q30 80 44 40" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <path d="M22 38 Q30 78 38 38" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <path d="M28 38 L28 78" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M32 38 L32 78" stroke="currentColor" stroke-width="1.2"/>
+    </svg>
+    <div class="preloader-bar"><span></span></div>
+    <div class="preloader-pct"><span id="preloaderPct">0</span>%</div>
+  </div>
+</div>
+
+<!-- ========== CUSTOM CURSOR ========== -->
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+<!-- ========== NAV ========== -->
+<header class="nav" id="nav">
+  <a href="#top" class="nav-logo" aria-label="WHISK · Little Bites &amp; Big Bliss">
+    <span class="nav-logo-name">WHISK</span>
+    <span class="nav-logo-tag">Little Bites &amp; Big Bliss</span>
+  </a>
+  <nav class="nav-links" aria-label="Principal">
+    <a href="#products">Momentos</a>
+    <a href="#about">Nosotros</a>
+    <a href="#testimonials">Opiniones</a>
+    <a href="#instagram">Instagram</a>
+    <a href="#contact">Contacto</a>
+  </nav>
+  <!-- Carrito — FASE 5 -->
+  <button class="nav-cart" id="cartToggle" aria-label="Abrir carrito" type="button">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-cart-badge" id="cartBadge" aria-live="polite" hidden>0</span>
+  </button>
+
+  <a class="nav-cta" href="https://wa.me/573016003637" target="_blank" rel="noopener">
+    <span>Ordenar</span>
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</header>
+
+<!-- ========== CARRITO DRAWER (FASE 5) ========== -->
+<div class="cart-overlay" id="cartOverlay" aria-hidden="true"></div>
+
+<aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-label="Tu carrito" aria-hidden="true">
+
+  <!-- Header del drawer -->
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span>Tu Carrito</span>
+      <span class="cart-drawer-count" id="cartDrawerCount" hidden>— <em id="cartDrawerCountText">0 productos</em></span>
+    </div>
+    <button class="cart-drawer-close" id="cartClose" aria-label="Cerrar carrito" type="button">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Estado VACÍO -->
+  <div class="cart-empty" id="cartEmpty">
+    <div class="cart-empty-icon" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="52" height="52" fill="none">
+        <rect x="8" y="20" width="48" height="38" rx="4" stroke="currentColor" stroke-width="2.2"/>
+        <path d="M22 28c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M20 20 14 8H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="cart-empty-title">Tu carrito está vacío</p>
+    <p class="cart-empty-sub">Descubre nuestros favoritos y añade algo delicioso</p>
+    <button class="cart-btn-explore" id="cartExplore" type="button">Explorar productos</button>
+  </div>
+
+  <!-- Estado CON PRODUCTOS -->
+  <div class="cart-has-items" id="cartHasItems" hidden>
+    <ul class="cart-items-list" id="cartItemsList" aria-label="Productos en el carrito"></ul>
+
+    <div class="cart-footer">
+      <div class="cart-footer-subtotal">
+        <span>Subtotal</span>
+        <span class="cart-subtotal-price" id="cartSubtotal">$0</span>
+      </div>
+      <p class="cart-footer-note">Impuestos y envío se calculan en el checkout</p>
+      <button class="cart-btn-confirm" id="cartConfirm" type="button">Confirmar pedido →</button>
+      <button class="cart-btn-continue" id="cartContinue" type="button">Seguir comprando</button>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ========== CHECKOUT MODAL (FASE 6) ========== -->
+<div class="checkout-overlay" id="checkoutOverlay" aria-hidden="true"></div>
+
+<div class="checkout-modal" id="checkoutModal" role="dialog" aria-modal="true" aria-label="Finaliza tu pedido" aria-hidden="true">
+
+  <!-- Close -->
+  <button class="checkout-close" id="checkoutClose" type="button" aria-label="Cerrar checkout">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+
+  <!-- Scrollable body -->
+  <div class="checkout-body">
+
+    <!-- Header -->
+    <div class="checkout-header">
+      <div class="checkout-logo">WHISK</div>
+      <h2 class="checkout-title">Finaliza tu <em>Pedido</em></h2>
+      <p class="checkout-subtitle">Sigue estos pasos para completar tu compra</p>
+    </div>
+
+    <!-- SECCIÓN A — Resumen -->
+    <section class="checkout-section">
+      <div class="checkout-section-label">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Resumen de tu pedido
+      </div>
+      <div class="checkout-meta">
+        <span id="checkoutDate"></span>
+        <span class="checkout-order-num" id="checkoutOrderNum"></span>
+      </div>
+      <div class="checkout-total-preview">
+        Total a pagar: <strong id="checkoutTotalPreview"></strong>
+      </div>
+
+      <!-- Productos -->
+      <div class="checkout-products-box">
+        <div class="checkout-products-label">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.6"/></svg>
+          Productos comprados
+        </div>
+        <ul class="checkout-items" id="checkoutItems"></ul>
+        <div class="checkout-summary-row">
+          <span>Subtotal</span><span id="checkoutSubtotal"></span>
+        </div>
+        <div class="checkout-summary-row checkout-envio">
+          <span>Envío</span><span class="checkout-envio-val">Se paga aparte</span>
+        </div>
+        <div class="checkout-summary-row checkout-total-big">
+          <span>Total a pagar</span><span id="checkoutTotal"></span>
+        </div>
+        <div class="checkout-note-yellow">
+          📌 Recuerda que este monto debe ser transferido a la cuenta mostrada en el QR. Adjunta tu comprobante de pago para procesar tu pedido.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN B — QR Nequi -->
+    <section class="checkout-section checkout-section-qr">
+      <h3 class="checkout-section-title">✨ Paga tu pedido por transferencia</h3>
+      <p class="checkout-section-sub">Escanea este código QR desde tu app bancaria para transferir el monto total</p>
+
+      <!-- QR — reemplazar src con el QR real de Nequi cuando esté disponible -->
+      <div class="checkout-qr-wrap">
+        <svg class="checkout-qr-placeholder" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="QR de pago WHISK">
+          <!-- Módulos esquina TL -->
+          <rect x="10" y="10" width="60" height="60" rx="4" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+          <rect x="20" y="20" width="40" height="40" rx="2" fill="#1a1a1a"/>
+          <!-- Módulos esquina TR -->
+          <rect x="130" y="10" width="60" height="60" rx="4" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+          <rect x="140" y="20" width="40" height="40" rx="2" fill="#1a1a1a"/>
+          <!-- Módulos esquina BL -->
+          <rect x="10" y="130" width="60" height="60" rx="4" fill="none" stroke="#1a1a1a" stroke-width="4"/>
+          <rect x="20" y="140" width="40" height="40" rx="2" fill="#1a1a1a"/>
+          <!-- Datos aleatorios centro (patrón decorativo) -->
+          <rect x="80"  y="10"  width="8" height="8" fill="#1a1a1a"/><rect x="96"  y="10"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="88"  y="20"  width="8" height="8" fill="#1a1a1a"/><rect x="104" y="20"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="30"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="88"  y="40"  width="8" height="8" fill="#1a1a1a"/><rect x="104" y="40"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="50"  width="8" height="8" fill="#1a1a1a"/><rect x="96"  y="50"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="10"  y="80"  width="8" height="8" fill="#1a1a1a"/><rect x="26"  y="80"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="50"  y="80"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="18"  y="90"  width="8" height="8" fill="#1a1a1a"/><rect x="42"  y="90"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="10"  y="100" width="8" height="8" fill="#1a1a1a"/><rect x="34"  y="100" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="80"  width="8" height="8" fill="#1a1a1a"/><rect x="96"  y="80"  width="8" height="8" fill="#1a1a1a"/><rect x="120" y="80"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="88"  y="90"  width="8" height="8" fill="#1a1a1a"/><rect x="112" y="90"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="100" width="8" height="8" fill="#1a1a1a"/><rect x="104" y="100" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="128" y="80"  width="8" height="8" fill="#1a1a1a"/><rect x="152" y="80"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="136" y="90"  width="8" height="8" fill="#1a1a1a"/><rect x="160" y="90"  width="8" height="8" fill="#1a1a1a"/>
+          <rect x="144" y="100" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="160" y="100" width="8" height="8" fill="#1a1a1a"/><rect x="176" y="100" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="10"  y="110" width="8" height="8" fill="#1a1a1a"/><rect x="42"  y="110" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="26"  y="120" width="8" height="8" fill="#1a1a1a"/><rect x="50"  y="120" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="110" width="8" height="8" fill="#1a1a1a"/><rect x="112" y="110" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="88"  y="120" width="8" height="8" fill="#1a1a1a"/><rect x="104" y="120" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="144" y="110" width="8" height="8" fill="#1a1a1a"/><rect x="168" y="110" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="152" y="120" width="8" height="8" fill="#1a1a1a"/><rect x="176" y="120" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="140" width="8" height="8" fill="#1a1a1a"/><rect x="104" y="140" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="88"  y="150" width="8" height="8" fill="#1a1a1a"/><rect x="120" y="150" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="80"  y="160" width="8" height="8" fill="#1a1a1a"/><rect x="112" y="160" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="96"  y="170" width="8" height="8" fill="#1a1a1a"/><rect x="120" y="170" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="128" y="140" width="8" height="8" fill="#1a1a1a"/><rect x="160" y="140" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="144" y="150" width="8" height="8" fill="#1a1a1a"/><rect x="176" y="150" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="128" y="160" width="8" height="8" fill="#1a1a1a"/><rect x="168" y="160" width="8" height="8" fill="#1a1a1a"/>
+          <rect x="136" y="170" width="8" height="8" fill="#1a1a1a"/><rect x="160" y="170" width="8" height="8" fill="#1a1a1a"/>
+          <!-- Logo WHISK centrado en el QR -->
+          <rect x="82" y="82" width="36" height="36" rx="4" fill="white"/>
+          <text x="100" y="106" text-anchor="middle" font-family="serif" font-size="11" font-weight="700" fill="#1a1a1a">W</text>
+        </svg>
+        <p class="checkout-qr-label">Código QR WHISK · Escanea desde Nequi</p>
+      </div>
+
+      <!-- Datos de pago -->
+      <div class="checkout-payment-box">
+        <div class="checkout-payment-row"><span>Nequi</span><strong>3016003637</strong></div>
+        <div class="checkout-payment-row"><span>Número</span><strong>301 600 3637</strong></div>
+        <div class="checkout-payment-row"><span>Nombre</span><strong>Juana Moreno</strong></div>
+        <button class="checkout-copy-btn" id="checkoutCopyBtn" type="button">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Copiar datos
+        </button>
+      </div>
+
+      <div class="checkout-total-box">
+        Total a pagar: <span id="checkoutQrTotal"></span>
+      </div>
+      <div class="checkout-note-important">
+        ⚠️ Importante: Incluye tu nombre en el mensaje de Nequi para identificar tu pedido.
+      </div>
+    </section>
+
+    <!-- SECCIÓN C — Enviar comprobante -->
+    <section class="checkout-section checkout-section-whatsapp">
+      <h3 class="checkout-section-title">📤 Envía tu comprobante</h3>
+      <p class="checkout-section-sub">Una vez realices el pago por Nequi, confirma tu pedido enviando el comprobante directamente por WhatsApp</p>
+      <p class="checkout-online"><span class="checkout-online-dot"></span>Atención personalizada en línea</p>
+      <p class="checkout-confirm-time">Tu pedido será confirmado en menos de 2 horas hábiles después de enviar tu comprobante.</p>
+
+      <div class="checkout-final-btns">
+        <button class="checkout-btn-back" id="checkoutBack" type="button">← Volver al carrito</button>
+        <a class="checkout-btn-wa" id="checkoutWaBtn" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          Enviar comprobante y confirmar orden
+        </a>
+      </div>
+    </section>
+
+  </div><!-- /checkout-body -->
+</div><!-- /checkout-modal -->
+
+<!-- ========== WHATSAPP FLOTANTE (FASE 7A) ========== -->
+<a class="wa-float" id="waFloat"
+   href="https://wa.me/573016003637?text=Hola%20WHISK!%20%F0%9F%91%8B%20Quiero%20hacer%20un%20pedido"
+   target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+  </svg>
+  <span class="wa-float-label">¿Necesitas ayuda?</span>
+</a>
+
+<!-- ========== HERO (3D) ========== -->
+<section id="top" class="hero">
+  <canvas id="heroCanvas" class="hero-canvas"></canvas>
+
+  <div class="hero-vignette" aria-hidden="true"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Medellín · Repostería Artesanal</div>
+    <h1 class="hero-title" aria-label="WHISK">
+      <span class="char">W</span><span class="char">H</span><span class="char">I</span><span class="char">S</span><span class="char">K</span>
+    </h1>
+    <p class="hero-script">Little Bites &amp; Big Bliss</p>
+    <div class="hero-meta">
+      <span>Scroll</span>
+      <div class="hero-scroll-line"><i></i></div>
+      <span>Explora</span>
+    </div>
+  </div>
+
+  <div class="hero-floating" aria-hidden="true">
+    <span>@whisk__little__bites</span>
+    <span>+57 301 600 3637</span>
+  </div>
+</section>
+
+<!-- ========== SCROLL SEQUENCE (5-stage cinematic 3D) ========== -->
+<section class="sequence" id="sequence">
+  <canvas id="bakeCanvas" class="bake-canvas"></canvas>
+
+  <div class="seq-step" data-step="1">
+    <div class="seq-copy">
+      <span class="seq-num">01</span>
+      <h2 class="seq-title">Los protagonistas<br/><em>en el aire.</em></h2>
+      <p class="seq-text">Brownies, Melokis, Tejas, Mille-feuille y Pétalos de Rosa — toda la línea WHISK flotando en silencio.</p>
+    </div>
+  </div>
+
+  <div class="seq-step" data-step="2">
+    <div class="seq-copy right">
+      <span class="seq-num">02</span>
+      <h2 class="seq-title">Caen los<br/><em>ingredientes.</em></h2>
+      <p class="seq-text">Huevo, harina, mantequilla, miel y nueces — uno a uno, con calma, cayendo dentro del bowl. Materia prima sin atajos.</p>
+    </div>
+  </div>
+
+  <div class="seq-step" data-step="3">
+    <div class="seq-copy">
+      <span class="seq-num">03</span>
+      <h2 class="seq-title">La mezcla<br/><em>cobra vida.</em></h2>
+      <p class="seq-text">Entra el batidor de varillas. Gira, integra, airea. La masa cobra color, se vuelve sedosa y brillante.</p>
+    </div>
+  </div>
+
+  <div class="seq-step" data-step="4">
+    <div class="seq-copy right">
+      <span class="seq-num">04</span>
+      <h2 class="seq-title">Al horno,<br/><em>con paciencia.</em></h2>
+      <p class="seq-text">La bandeja entra, la puerta se cierra. Adentro, la luz tibia transforma todo. El secreto está en el tiempo justo.</p>
+    </div>
+  </div>
+
+  <div class="seq-step" data-step="5">
+    <div class="seq-copy">
+      <span class="seq-num">05</span>
+      <h2 class="seq-title">Y la magia<br/><em>sale del horno.</em></h2>
+      <p class="seq-text">Postres listos, perfectos, brillantes — flotando hacia ti. Pequeños bocados, grandes momentos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== STATS ========== -->
+<section class="stats" id="stats">
+  <div class="stats-grid">
+    <article class="stat" data-target="500" data-suffix="+">
+      <div class="stat-icon">
+        <img src="./assets/icon-postres.png" alt="" loading="lazy" decoding="async" />
+      </div>
+      <div class="stat-num"><span>0</span><i>+</i></div>
+      <div class="stat-label">Postres Creados</div>
+    </article>
+
+    <article class="stat" data-target="98" data-suffix="%">
+      <div class="stat-icon">
+        <img src="./assets/icon-clientes.png" alt="" loading="lazy" decoding="async" />
+      </div>
+      <div class="stat-num"><span>0</span><i>%</i></div>
+      <div class="stat-label">Clientes Felices</div>
+    </article>
+
+    <article class="stat" data-target="50" data-suffix="+">
+      <div class="stat-icon">
+        <img src="./assets/icon-eventos.png" alt="" loading="lazy" decoding="async" />
+      </div>
+      <div class="stat-num"><span>0</span><i>+</i></div>
+      <div class="stat-label">Eventos Endulzados</div>
+    </article>
+
+    <article class="stat" data-target="5" data-suffix="★">
+      <div class="stat-icon">
+        <img src="./assets/icon-rating.png" alt="" loading="lazy" decoding="async" />
+      </div>
+      <div class="stat-num"><span>0</span><i>★</i></div>
+      <div class="stat-label">Calificación Promedio</div>
+    </article>
+  </div>
+</section>
+
+<!-- ========== NUESTROS MOMENTOS ========== -->
+<section class="products" id="products">
+  <header class="section-head">
+    <span class="section-eyebrow">— Nuestros Momentos</span>
+    <h2 class="section-title">Cada bocado,<br/><em>una decisión.</em></h2>
+    <p class="section-sub">Hechos a mano en Medellín. Sin prisa, sin atajos.</p>
+  </header>
+
+  <div class="filter-tabs" role="tablist" aria-label="Filtrar momentos">
+    <button class="tab active" data-filter="all" role="tab" aria-selected="true">Todos</button>
+    <button class="tab" data-filter="exclusivos" role="tab" aria-selected="false">Exclusivos</button>
+    <button class="tab" data-filter="clasicos" role="tab" aria-selected="false">Clásicos</button>
+  </div>
+
+  <div class="products-grid" id="productsGrid">
+
+    <!-- ====== EXCLUSIVOS (4) ====== -->
+    <article class="product tilt" data-cat="exclusivos"
+             data-product-id="melokis" data-product-name="Melokis"
+             data-product-price="28000" data-product-image="./assets/3c45feebacb658a4b79ac9e0e181f3e4.jpg"
+             data-product-tag="Exclusivo">
+      <div class="product-visual">
+        <img src="./assets/3c45feebacb658a4b79ac9e0e181f3e4.jpg" alt="Melokis — mini postres griegos con miel y nueces" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Exclusivo</span>
+        <h3 class="product-name">Melokis</h3>
+        <p class="product-desc">Miel griega, especias secretas, nueces tostadas. Un bocado que se queda.</p>
+        <div class="product-foot">
+          <span class="product-price">$28.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Melokis al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="product tilt" data-cat="exclusivos"
+             data-product-id="barba-dragon" data-product-name="Barba de Dragón"
+             data-product-price="24000" data-product-image="./assets/barba-dragon.png"
+             data-product-tag="Exclusivo">
+      <div class="product-visual">
+        <img src="./assets/barba-dragon.png" alt="Barba de Dragón — algodón blanco esponjoso con relleno de nueces" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Exclusivo</span>
+        <h3 class="product-name">Barba de Dragón</h3>
+        <p class="product-desc">Hilos finísimos de azúcar artesanal. Se deshace en la boca como un suspiro.</p>
+        <div class="product-foot">
+          <span class="product-price">$24.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Barba de Dragón al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="product tilt" data-cat="exclusivos"
+             data-product-id="petalos-rosa" data-product-name="Pétalos de Rosa Caramelizados"
+             data-product-price="30000" data-product-image="./assets/preview (3).webp"
+             data-product-tag="Exclusivo">
+      <div class="product-visual">
+        <img src="./assets/preview (3).webp" alt="Pétalos de Rosa Caramelizados — pétalos reales caramelizados a mano" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Exclusivo</span>
+        <h3 class="product-name">Pétalos de Rosa Caramelizados</h3>
+        <p class="product-desc">Pétalos reales, caramelizados a mano. Belleza que se come.</p>
+        <div class="product-foot">
+          <span class="product-price">$30.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Pétalos de Rosa al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="product tilt" data-cat="exclusivos"
+             data-product-id="honeymoon" data-product-name="Honeymoon"
+             data-product-price="26000" data-product-image="./assets/honeycomb.jpg"
+             data-product-tag="Exclusivo">
+      <div class="product-visual">
+        <img src="./assets/honeycomb.jpg" alt="Honeymoon — dulce de miel artesanal, un bocado que enamora" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Exclusivo</span>
+        <h3 class="product-name">Honeymoon</h3>
+        <p class="product-desc">Dulce de miel. Un bocado que enamora.</p>
+        <div class="product-foot">
+          <span class="product-price">$26.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Honeymoon al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- ====== CLÁSICOS (3) ====== -->
+    <article class="product tilt" data-cat="clasicos"
+             data-product-id="brownie" data-product-name="Brownie de Milo"
+             data-product-price="18000" data-product-image="./assets/brownie.jpg"
+             data-product-tag="Clásico">
+      <div class="product-visual">
+        <img src="./assets/brownie.jpg" alt="Brownie de Milo — denso, húmedo, intenso" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Clásico</span>
+        <h3 class="product-name">Brownie de Milo</h3>
+        <p class="product-desc">Denso. Húmedo. Intenso. Con corazón melcochudo de Milo de verdad.</p>
+        <div class="product-foot">
+          <span class="product-price">$18.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Brownie de Milo al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="product tilt" data-cat="clasicos"
+             data-product-id="tejas" data-product-name="Tejas de Almendra"
+             data-product-price="12000" data-product-image="./assets/producto-tejas.webp"
+             data-product-tag="Clásico">
+      <div class="product-visual">
+        <img src="./assets/producto-tejas.webp" alt="Tejas de Almendra — láminas crujientes" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Clásico</span>
+        <h3 class="product-name">Tejas de Almendra</h3>
+        <p class="product-desc">Delgadas, doradas, sonoras. Una caricia crujiente.</p>
+        <div class="product-foot">
+          <span class="product-price">$12.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Tejas de Almendra al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="product tilt" data-cat="clasicos"
+             data-product-id="canolis" data-product-name="Canolis"
+             data-product-price="22000" data-product-image="./assets/brownie.jpg"
+             data-product-tag="Clásico">
+      <div class="product-visual">
+        <img src="./assets/brownie.jpg" alt="Canolis — masa crujiente rellena a mano, dulce italiana artesanal" loading="lazy" decoding="async" />
+      </div>
+      <div class="product-body">
+        <span class="product-tag">Clásico</span>
+        <h3 class="product-name">Canolis</h3>
+        <p class="product-desc">Masa crujiente rellena a mano. Dulce italiana con alma artesanal.</p>
+        <div class="product-foot">
+          <span class="product-price">$22.000</span>
+        </div>
+        <div class="product-actions">
+          <button class="product-btn product-btn-quick" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+            <span>Vista Rápida</span>
+          </button>
+          <button class="product-btn product-btn-add" type="button" aria-label="Añadir Canolis al carrito">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6.5 7h11l-1.3 11.2A2 2 0 0 1 14.2 20H9.8a2 2 0 0 1-2-1.8L6.5 7Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            <span class="product-btn-label">Añadir</span>
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ========== ABOUT ========== -->
+<section class="about" id="about">
+  <h2 class="about-script">Creando Momentos<br/>Dulces e Inolvidables</h2>
+
+  <div class="about-grid">
+    <!-- LEFT — TEXTO (Guía 3 FASE 4) -->
+    <div class="about-copy">
+      <span class="section-eyebrow">— Sobre WHISK</span>
+      <h3 class="about-title">Postres pequeños,<br/><em>recuerdos grandes.</em></h3>
+      <p class="about-lede">No hacemos tortas. Hacemos momentos.</p>
+      <p>En WHISK creemos que un bocado bien hecho puede cambiarte el día. Desde Medellín, mezclamos técnica europea con ingredientes locales para crear piezas que no se olvidan.</p>
+      <p>Cada postre se prepara <em>a mano</em>, en lotes pequeños, con la dosis exacta de tiempo, paciencia y cariño que se necesita para una experiencia inolvidable.</p>
+      <p class="about-signature">Hecho con las manos. Sentido con todo.</p>
+      <ul class="about-badges" aria-label="Promesas WHISK">
+        <li><span class="about-badge-dot" aria-hidden="true"></span>Hecho a mano</li>
+        <li><span class="about-badge-dot" aria-hidden="true"></span>Lotes pequeños</li>
+        <li><span class="about-badge-dot" aria-hidden="true"></span>Ingredientes locales</li>
+        <li><span class="about-badge-dot" aria-hidden="true"></span>100% naturales — sin conservantes ni químicos</li>
+      </ul>
+    </div>
+
+    <!-- RIGHT — BOWL DECORATIVO + 3D whisk de fondo + WHISK seal -->
+    <div class="about-visual">
+      <!-- Frame contains ONLY the 3D canvas — no overflow:hidden clipping on bowl/badge -->
+      <div class="about-frame">
+        <!-- 3D whisk procedural rota suavemente al fondo -->
+        <canvas id="aboutCanvas" aria-hidden="true"></canvas>
+      </div>
+      <!-- Bowl and badge live OUTSIDE the frame — free to extend past its edges -->
+      <img class="about-bowl-img" src="./assets/medio_bowl-removebg-preview.png" alt="Bowl artesanal WHISK" loading="lazy" decoding="async" />
+      <!-- Sello circular WHISK · 100% artesanal · Medellín -->
+      <div class="about-badge tilt" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <path id="badgeCircle" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+          </defs>
+          <circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="1" fill="none"/>
+          <circle cx="60" cy="60" r="48" stroke="currentColor" stroke-width="0.6" fill="none" stroke-dasharray="1 3"/>
+          <text font-family="Manrope" font-size="9" letter-spacing="3" fill="currentColor">
+            <textPath href="#badgeCircle" startOffset="0">· 100% ARTESANAL · HECHO EN MEDELLÍN ·</textPath>
+          </text>
+          <text x="60" y="58" text-anchor="middle" font-family="Pinyon Script" font-size="22" fill="currentColor">Whisk</text>
+          <text x="60" y="72" text-anchor="middle" font-family="Manrope" font-size="6" letter-spacing="3" fill="currentColor">EST. ARTESANAL</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detrás de cámaras WHISK — Vimeo embed (lazy via IntersectionObserver en app.js) -->
+  <figure class="about-video" data-reveal>
+    <div class="about-video-frame">
+      <iframe
+        src="https://player.vimeo.com/video/1124527834?background=1&autoplay=1&loop=1&muted=1&autopause=0&controls=0&dnt=1"
+        title="WHISK · detrás de cámaras"
+        frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+        loading="lazy"></iframe>
+      <div class="about-video-overlay" aria-hidden="true"></div>
+      <figcaption class="about-video-caption">
+        <span class="section-eyebrow">— Detrás de cámaras</span>
+        <h3>Manos artesanales,<br/><em>recetas pacientes.</em></h3>
+        <p>Cada bocado, una decisión.</p>
+      </figcaption>
+    </div>
+  </figure>
+</section>
+
+<!-- ========== TESTIMONIALS ========== -->
+<section class="testimonials" id="testimonials">
+  <header class="section-head light">
+    <span class="section-eyebrow">— Opiniones</span>
+    <h2 class="section-title">Lo que dicen<br/><em>nuestros clientes.</em></h2>
+  </header>
+
+  <div class="testi-grid">
+    <article class="testi tilt">
+      <div class="testi-stars">★ ★ ★ ★ ★</div>
+      <blockquote>"Los Melokis son ADICTIVOS. Pedí una caja para un cumpleaños y se acabaron en minutos. Volveré una y otra vez."</blockquote>
+      <footer>
+        <strong>Mónica Sierra</strong>
+        <span>Medellín</span>
+      </footer>
+    </article>
+
+    <article class="testi inverted tilt">
+      <div class="testi-stars">★ ★ ★ ★ ★</div>
+      <blockquote>"Pedí postres para el grado de mi hija y todos quedaron impresionados. La presentación, el sabor, la atención… todo de otro nivel."</blockquote>
+      <footer>
+        <strong>Andrés Moreno</strong>
+        <span>Medellín</span>
+      </footer>
+    </article>
+
+    <article class="testi tilt">
+      <div class="testi-stars">★ ★ ★ ★ ★</div>
+      <blockquote>"La mantequilla de pecana es un descubrimiento. Llevo tres frascos en un mes. Producto verdaderamente artesanal."</blockquote>
+      <footer>
+        <strong>Alejandro Martínez</strong>
+        <span>Medellín</span>
+      </footer>
+    </article>
+  </div>
+</section>
+
+<!-- ========== INSTAGRAM ========== -->
+<section class="ig" id="instagram">
+  <header class="section-head">
+    <span class="section-eyebrow">— Síguenos</span>
+    <h2 class="ig-handle">@whisk__little__bites</h2>
+    <p class="section-sub">Detrás de cámaras, recetas y mucho más en Instagram.</p>
+  </header>
+
+  <div class="ig-grid">
+    <a class="ig-tile" href="https://instagram.com/whisk__little__bites" target="_blank" rel="noopener" aria-label="Melokis en Instagram">
+      <img src="./assets/3c45feebacb658a4b79ac9e0e181f3e4.jpg" alt="Melokis" loading="lazy" decoding="async" />
+      <span class="ig-heart">♥</span>
+    </a>
+    <a class="ig-tile" href="https://instagram.com/whisk__little__bites" target="_blank" rel="noopener" aria-label="Proceso WHISK en Instagram">
+      <img src="./assets/proceso-batidor.jpg" alt="Proceso artesanal WHISK" loading="lazy" decoding="async" />
+      <span class="ig-heart">♥</span>
+    </a>
+    <a class="ig-tile" href="https://instagram.com/whisk__little__bites" target="_blank" rel="noopener" aria-label="Tejas de Almendra en Instagram">
+      <img src="./assets/producto-tejas.webp" alt="Tejas de Almendra" loading="lazy" decoding="async" />
+      <span class="ig-heart">♥</span>
+    </a>
+    <a class="ig-tile" href="https://instagram.com/whisk__little__bites" target="_blank" rel="noopener" aria-label="Brownie de Milo en Instagram">
+      <img src="./assets/brownie.jpg" alt="Brownie de Milo" loading="lazy" decoding="async" />
+      <span class="ig-heart">♥</span>
+    </a>
+  </div>
+</section>
+
+<!-- ========== BROWNIES VOLANDO (FASE 8) ========== -->
+<section class="brownies-fly" id="brownies-fly" aria-hidden="true">
+  <div class="brownies-fly-inner">
+    <img class="fly-img fly-img--1" data-speed="0.18"
+         src="./assets/brownie.jpg"
+         alt="" loading="lazy" decoding="async">
+    <img class="fly-img fly-img--2" data-speed="0.28"
+         src="./assets/WhatsApp Image 2026-05-23 at 9.08.15 PM.jpeg"
+         alt="" loading="lazy" decoding="async">
+    <img class="fly-img fly-img--3" data-speed="0.14"
+         src="./assets/06bf6c68c12daf01e9449ebe10e642aa.jpg"
+         alt="" loading="lazy" decoding="async">
+    <img class="fly-img fly-img--4" data-speed="0.22"
+         src="./assets/producto-tejas.webp"
+         alt="" loading="lazy" decoding="async">
+    <div class="brownies-fly-text">
+      <p class="fly-eyebrow">— Hechos con amor</p>
+      <h2 class="fly-title">Pequeños bocados,<br><em>grandes recuerdos.</em></h2>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CONTACT ========== -->
+<section class="contact" id="contact">
+  <div class="contact-left">
+    <span class="section-eyebrow dark">— Hablemos</span>
+    <h2 class="contact-title">Ordena tu<br/><em>próximo dulce.</em></h2>
+    <p class="contact-lede">Estamos en Medellín, listas para preparar tu pedido con tiempo y cariño.</p>
+
+    <ul class="contact-list">
+      <li>
+        <span class="ci">Teléfono</span>
+        <a href="tel:+573016003637">+57 301 600 3637</a>
+      </li>
+      <li>
+        <span class="ci">WhatsApp</span>
+        <a href="https://wa.me/573016003637" target="_blank" rel="noopener">wa.me/573016003637</a>
+      </li>
+      <li>
+        <span class="ci">Instagram</span>
+        <a href="https://instagram.com/whisk__little__bites" target="_blank" rel="noopener">@whisk__little__bites</a>
+      </li>
+      <li>
+        <span class="ci">Ciudad</span>
+        <span>Medellín, Colombia</span>
+      </li>
+    </ul>
+
+    <a class="wa-btn" href="https://wa.me/573016003637" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 3.5A11 11 0 0 0 4.6 18l-1.6 5.5 5.7-1.5A11 11 0 1 0 20 3.5Zm-8 19a9 9 0 0 1-4.6-1.3l-.3-.2-3.4.9.9-3.3-.2-.4A9 9 0 1 1 12 22.5Zm5.1-6.7c-.3-.2-1.7-.8-1.9-.9s-.5-.2-.7.2-.8.9-1 1.1-.4.2-.7 0a7.4 7.4 0 0 1-2.2-1.4 8 8 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.7l.5-.5.3-.5a.5.5 0 0 0 0-.5l-.9-2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.3 3.3 0 0 0-1.1 2.5 5.8 5.8 0 0 0 1.2 3.1c.1.2 2.1 3.3 5.2 4.7a17.3 17.3 0 0 0 1.7.6 4.1 4.1 0 0 0 1.8.1 3 3 0 0 0 2-1.4 2.4 2.4 0 0 0 .2-1.4c-.1-.1-.3-.2-.6-.3Z" fill="currentColor"/></svg>
+      <span>Escríbenos por WhatsApp</span>
+    </a>
+  </div>
+
+  <form class="contact-right" id="orderForm" autocomplete="off" onsubmit="return whiskSubmit(event)">
+    <h3 class="form-title">Cotiza tu pedido</h3>
+    <div class="form-row">
+      <label>
+        <span>Nombre</span>
+        <input required type="text" name="nombre" placeholder="Tu nombre" />
+      </label>
+      <label>
+        <span>Teléfono</span>
+        <input required type="tel" name="telefono" placeholder="+57…" />
+      </label>
+    </div>
+    <label class="full">
+      <span>¿Qué te gustaría?</span>
+      <select name="postre" required>
+        <option value="">Elige un momento…</option>
+        <optgroup label="Exclusivos">
+          <option>Melokis · $28.000</option>
+          <option>Barba de Dragón · $24.000</option>
+          <option>Pétalos de Rosa Caramelizados · $30.000</option>
+          <option>Honeymoon · $26.000</option>
+        </optgroup>
+        <optgroup label="Clásicos">
+          <option>Brownie de Milo · $18.000</option>
+          <option>Tejas de Almendra · $12.000</option>
+          <option>Canolis · $22.000</option>
+        </optgroup>
+        <option>Pedido especial · evento</option>
+      </select>
+    </label>
+    <label class="full">
+      <span>Mensaje</span>
+      <textarea name="mensaje" rows="3" placeholder="Cantidad, fecha del evento, detalles…"></textarea>
+    </label>
+    <button class="form-submit" type="submit">
+      <span>Enviar por WhatsApp</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </form>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <h3 class="footer-logo">WHISK</h3>
+      <p class="footer-script">Little Bites &amp; Big Bliss</p>
+      <p class="footer-text">Repostería artesanal hecha con cariño en Medellín, Colombia.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Momentos</h4>
+      <a href="#products">Melokis</a>
+      <a href="#products">Barba de Dragón</a>
+      <a href="#products">Pétalos de Rosa</a>
+      <a href="#products">Honeymoon</a>
+      <a href="#products">Brownie de Milo</a>
+      <a href="#products">Tejas de Almendra</a>
+      <a href="#products">Canolis</a>
+    </div>
+    <div class="footer-col">
+      <h4>Compañía</h4>
+      <a href="#about">Sobre WHISK</a>
+      <a href="#testimonials">Opiniones</a>
+      <a href="#contact">Contacto</a>
+      <a href="https://wa.me/573016003637" target="_blank" rel="noopener">Ordenar ahora</a>
+    </div>
+    <div class="footer-col">
+      <h4>Síguenos</h4>
+      <a href="https://instagram.com/whisk__little__bites" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://wa.me/573016003637" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="tel:+573016003637">+57 301 600 3637</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="year"></span> WHISK · Medellín, Colombia</span>
+    <span>Hecho con cariño y mucha crema.</span>
+  </div>
+</footer>
+
+<!-- ============================================================
+     WHISK CHECKOUT — FASE 6
+============================================================ -->
+<script>
+(function(){
+  'use strict';
+
+  /* ── Precio colombiano ── */
+  function fmt(n){ return '$ ' + Number(n).toLocaleString('es-CO'); }
+
+  /* ── Fecha formateada ── */
+  function fmtDate(d){
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    let hh = d.getHours(), min = String(d.getMinutes()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'p.m.' : 'a.m.';
+    hh = hh % 12 || 12;
+    return dd + '/' + mm + '/' + yyyy + ' — ' + hh + ':' + min + ' ' + ampm;
+  }
+
+  /* ── Número de orden ── */
+  function genOrder(){
+    const y = new Date().getFullYear();
+    const n = String(Math.floor(Math.random()*99999)).padStart(5,'0');
+    return 'ORD-' + y + '-' + n;
+  }
+
+  /* ── DOM ── */
+  const overlay   = document.getElementById('checkoutOverlay');
+  const modal     = document.getElementById('checkoutModal');
+  const closeBtn  = document.getElementById('checkoutClose');
+  const backBtn   = document.getElementById('checkoutBack');
+  const copyBtn   = document.getElementById('checkoutCopyBtn');
+  const waBtn     = document.getElementById('checkoutWaBtn');
+
+  let orderNum = '';
+
+  /* ── Abrir ── */
+  function openCheckout(){
+    if(!window.WHISK_CART){ return; }
+    const cart = window.WHISK_CART.getCart();
+    if(cart.length === 0){ return; }
+
+    const now = new Date();
+    orderNum = genOrder();
+    const subtotal = cart.reduce(function(s,i){ return s + i.price*i.qty; }, 0);
+
+    /* Fecha y orden */
+    document.getElementById('checkoutDate').textContent = '📅 ' + fmtDate(now);
+    document.getElementById('checkoutOrderNum').textContent = '📦 ' + orderNum;
+    document.getElementById('checkoutTotalPreview').textContent = fmt(subtotal);
+
+    /* Items — Sección A */
+    const ul = document.getElementById('checkoutItems');
+    ul.innerHTML = '';
+    cart.forEach(function(item){
+      const li = document.createElement('li');
+      li.className = 'checkout-item';
+      li.innerHTML =
+        '<img class="checkout-item-img" src="' + (item.image||'') + '" alt="' + item.name + '" loading="lazy" onerror="this.style.background=\'#F0E8D5\';this.src=\'\'">' +
+        '<div>' +
+          '<p class="checkout-item-name">' + item.name + '</p>' +
+          '<p class="checkout-item-detail">× ' + item.qty + ' — ' + fmt(item.price) + ' c/u</p>' +
+        '</div>' +
+        '<span class="checkout-item-subtotal">' + fmt(item.price * item.qty) + '</span>';
+      ul.appendChild(li);
+    });
+
+    document.getElementById('checkoutSubtotal').textContent = fmt(subtotal);
+    document.getElementById('checkoutTotal').textContent = fmt(subtotal);
+
+    /* Total QR box */
+    document.getElementById('checkoutQrTotal').textContent = fmt(subtotal);
+
+    /* WhatsApp URL */
+    const productLines = cart.map(function(i){
+      return '✅ ' + i.qty + ' × ' + i.name + ' — ' + fmt(i.price) + ' c/u — Subtotal: ' + fmt(i.price*i.qty);
+    }).join('\n');
+    const waMsg =
+      'Hola WHISK! 👋\n' +
+      'Acabo de realizar el pago de mi pedido. Adjunto el comprobante.\n\n' +
+      '📋 RESUMEN DEL PEDIDO:\n' +
+      '📦 Número de orden: ' + orderNum + '\n' +
+      '📅 Fecha: ' + fmtDate(now) + '\n\n' +
+      '🛒 PRODUCTOS:\n' + productLines + '\n\n' +
+      '💰 TOTAL PAGADO: ' + fmt(subtotal) + '\n' +
+      '💳 Método: Transferencia Nequi\n\n' +
+      'Por favor confirmen la recepción del pago. ¡Gracias! 🍰✨';
+    waBtn.href = 'https://api.whatsapp.com/send?phone=573016003637&text=' + encodeURIComponent(waMsg);
+
+    /* Mostrar */
+    overlay.classList.add('open');
+    modal.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    /* Scroll al top del modal */
+    const body = modal.querySelector('.checkout-body');
+    if(body) body.scrollTop = 0;
+  }
+
+  /* ── Cerrar ── */
+  function closeCheckout(){
+    overlay.classList.remove('open');
+    modal.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Eventos ── */
+  closeBtn.addEventListener('click', closeCheckout);
+  overlay.addEventListener('click', closeCheckout);
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && modal.classList.contains('open')) closeCheckout();
+  });
+
+  /* Volver al carrito */
+  backBtn.addEventListener('click', function(){
+    closeCheckout();
+    setTimeout(function(){
+      if(window.WHISK_CART) window.WHISK_CART.openCart();
+    }, 200);
+  });
+
+  /* Copiar datos de pago */
+  copyBtn.addEventListener('click', function(){
+    const text = 'Nequi: 3016003637\nNúmero: 301 600 3637\nNombre: Juana Moreno';
+    navigator.clipboard.writeText(text).then(function(){
+      copyBtn.classList.add('copied');
+      copyBtn.textContent = '✓ ¡Datos copiados!';
+      setTimeout(function(){
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg> Copiar datos';
+      }, 2500);
+    });
+  });
+
+  /* Escuchar clic en "Confirmar pedido" del carrito */
+  document.addEventListener('click', function(e){
+    if(e.target.closest('#cartConfirm')){
+      if(window.WHISK_CART) window.WHISK_CART.closeCart();
+      setTimeout(openCheckout, 150);
+    }
+  });
+
+  window.WHISK_CHECKOUT = { open: openCheckout, close: closeCheckout };
+})();
+</script>
+
+<!-- ============================================================
+     WHATSAPP — FASE 7
+     7A: botón flotante con fade-in a 3s + pulso
+     7C: botón "Pedir por WhatsApp" en cada card de producto
+============================================================ -->
+<script>
+(function(){
+  'use strict';
+
+  /* ── 7A — Botón flotante: aparece a los 3 segundos ── */
+  const waFloat = document.getElementById('waFloat');
+  if(waFloat){
+    setTimeout(function(){
+      waFloat.classList.add('visible');
+    }, 3000);
+  }
+
+  /* ── 7C — Insertar botón WhatsApp en cada card de producto ── */
+  /* Reemplaza "Vista Rápida" por "Pedir por WhatsApp" para dar contexto de acción directa */
+  document.querySelectorAll('.product[data-product-name]').forEach(function(card){
+    const name  = card.dataset.productName  || '';
+    const waMsg = 'Hola WHISK! 👋 Quiero pedir: ' + name;
+    const waUrl = 'https://wa.me/573016003637?text=' + encodeURIComponent(waMsg);
+
+    /* Reemplazar botón "Vista Rápida" con botón WhatsApp */
+    const quickBtn = card.querySelector('.product-btn-quick');
+    if(quickBtn){
+      const waBtn = document.createElement('a');
+      waBtn.className = 'product-btn product-btn-wa';
+      waBtn.href      = waUrl;
+      waBtn.target    = '_blank';
+      waBtn.rel       = 'noopener';
+      waBtn.setAttribute('aria-label', 'Pedir ' + name + ' por WhatsApp');
+      waBtn.innerHTML =
+        '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">' +
+          '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>' +
+        '</svg>' +
+        '<span>Pedir por WA</span>';
+      quickBtn.replaceWith(waBtn);
+    }
+  });
+})();
+</script>
+
+<!-- ES modules: scene.js loads first (exports to window.WHISK_SCENES), then app.js -->
+<script type="module" src="./scene.js"></script>
+<script type="module" src="./app.js"></script>
+
+<!-- ============================================================
+     WHISK CART — FASE 5
+     Vanilla JS. Sin dependencias. localStorage persist.
+     Precio formato colombiano: $ XX.000
+============================================================ -->
+<script>
+(function(){
+  'use strict';
+
+  /* ── Precio colombiano: 28000 → "$ 28.000" ── */
+  function fmtPrice(n){
+    return '$ ' + Number(n).toLocaleString('es-CO');
+  }
+
+  /* ── Estado del carrito (cargado de localStorage) ── */
+  const STORAGE_KEY = 'whisk_cart_v1';
+  let cart = [];
+
+  function loadCart(){
+    try { cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch(e){ cart = []; }
+  }
+  function saveCart(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+  }
+
+  /* ── Elementos del DOM ── */
+  const toggle    = document.getElementById('cartToggle');
+  const drawer    = document.getElementById('cartDrawer');
+  const overlay   = document.getElementById('cartOverlay');
+  const closeBtn  = document.getElementById('cartClose');
+  const badge     = document.getElementById('cartBadge');
+  const drawerCount    = document.getElementById('cartDrawerCount');
+  const drawerCountTxt = document.getElementById('cartDrawerCountText');
+  const emptyEl   = document.getElementById('cartEmpty');
+  const hasItemsEl= document.getElementById('cartHasItems');
+  const itemsList = document.getElementById('cartItemsList');
+  const subtotalEl= document.getElementById('cartSubtotal');
+  const exploreBtn= document.getElementById('cartExplore');
+  const continueBtn = document.getElementById('cartContinue');
+
+  /* ── Abrir / Cerrar ── */
+  function openCart(){
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+  function closeCart(){
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', openCart);
+  closeBtn.addEventListener('click', closeCart);
+  overlay.addEventListener('click', closeCart);
+  continueBtn?.addEventListener('click', closeCart);
+  exploreBtn?.addEventListener('click', function(){
+    closeCart();
+    setTimeout(function(){
+      const products = document.getElementById('products') || document.querySelector('.products');
+      if(products) products.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 200);
+  });
+
+  /* Cerrar con ESC */
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && drawer.classList.contains('open')) closeCart();
+  });
+
+  /* ── Badge del nav ── */
+  function updateBadge(){
+    const total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+    badge.textContent = total;
+    if(total > 0){
+      badge.removeAttribute('hidden');
+      badge.classList.add('visible');
+    } else {
+      badge.classList.remove('visible');
+      setTimeout(function(){ badge.setAttribute('hidden',''); }, 250);
+    }
+  }
+
+  /* ── Render del drawer ── */
+  function renderCart(){
+    updateBadge();
+    const total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+
+    if(cart.length === 0){
+      emptyEl.removeAttribute('hidden');
+      hasItemsEl.setAttribute('hidden','');
+      drawerCount.setAttribute('hidden','');
+    } else {
+      emptyEl.setAttribute('hidden','');
+      hasItemsEl.removeAttribute('hidden');
+      drawerCount.removeAttribute('hidden');
+      drawerCountTxt.textContent = total === 1 ? '1 producto' : total + ' productos';
+
+      /* Subtotal */
+      const subtotal = cart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+      subtotalEl.textContent = fmtPrice(subtotal);
+
+      /* Items */
+      itemsList.innerHTML = '';
+      cart.forEach(function(item){
+        const li = document.createElement('li');
+        li.className = 'cart-item';
+        li.innerHTML =
+          '<img class="cart-item-img" src="' + (item.image || '') + '" alt="' + item.name + '" loading="lazy" onerror="this.style.background=\'#F0E8D5\';this.src=\'\'">' +
+          '<div class="cart-item-info">' +
+            '<p class="cart-item-name">' + item.name + '</p>' +
+            '<p class="cart-item-price">' + fmtPrice(item.price) + '</p>' +
+            '<div class="cart-item-qty">' +
+              '<button class="cart-qty-btn" data-id="' + item.id + '" data-action="minus" aria-label="Reducir cantidad" type="button">−</button>' +
+              '<span class="cart-qty-num">' + item.qty + '</span>' +
+              '<button class="cart-qty-btn" data-id="' + item.id + '" data-action="plus" aria-label="Aumentar cantidad" type="button">+</button>' +
+            '</div>' +
+          '</div>' +
+          '<button class="cart-item-remove" data-id="' + item.id + '" data-action="remove" aria-label="Eliminar ' + item.name + '" type="button">' +
+            '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</button>';
+        itemsList.appendChild(li);
+      });
+    }
+  }
+
+  /* ── Eventos en botones qty/remove (delegación) ── */
+  itemsList.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const idx = cart.findIndex(function(i){ return i.id === id; });
+    if(idx === -1) return;
+
+    if(action === 'plus'){
+      cart[idx].qty++;
+    } else if(action === 'minus'){
+      cart[idx].qty--;
+      if(cart[idx].qty <= 0) cart.splice(idx,1);
+    } else if(action === 'remove'){
+      cart.splice(idx,1);
+    }
+    saveCart();
+    renderCart();
+  });
+
+  /* ── API pública: añadir producto ── */
+  function addToCart(product){
+    /* product: { id, name, price, image, tag } */
+    const idx = cart.findIndex(function(i){ return i.id === product.id; });
+    if(idx > -1){
+      cart[idx].qty++;
+    } else {
+      cart.push({ id:product.id, name:product.name, price:product.price, image:product.image||'', tag:product.tag||'', qty:1 });
+    }
+    saveCart();
+    renderCart();
+    /* Animación micro-bounce del badge */
+    badge.style.animation = 'none';
+    requestAnimationFrame(function(){
+      badge.style.animation = '';
+      badge.classList.remove('visible');
+      void badge.offsetWidth;
+      badge.classList.add('visible');
+    });
+  }
+
+  /* ── Escuchar el evento global 'whisk:add-to-cart' ── */
+  window.addEventListener('whisk:add-to-cart', function(e){
+    addToCart(e.detail);
+    /* Abrir el carrito brevemente para feedback visual */
+    openCart();
+  });
+
+  /* ── Exponer para uso externo ── */
+  window.WHISK_CART = { addToCart:addToCart, openCart:openCart, closeCart:closeCart, getCart:function(){ return cart.slice(); } };
+
+  /* ── Init ── */
+  loadCart();
+  renderCart();
+})();
+</script>
+</body>
+</html>

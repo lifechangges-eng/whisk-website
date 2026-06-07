@@ -1,0 +1,34 @@
+{
+  "name": "whisk-website",
+  "version": "1.0.0",
+  "description": "WHISK — Little Bites & Big Bliss. Cinematic 3D scroll-driven site for an artisan dessert brand in Medellín.",
+  "private": true,
+  "scripts": {
+    "dev": "npx --yes serve . -p 5173",
+    "start": "npx --yes serve . -p 5173",
+    "deploy": "npx --yes vercel --prod"
+  },
+  "keywords": [
+    "whisk",
+    "desserts",
+    "medellin",
+    "threejs",
+    "gsap",
+    "scroll",
+    "3d"
+  ],
+  "dependencies": {
+    "@gltf-transform/cli": "^4.3.0",
+    "@gltf-transform/core": "^4.3.0",
+    "@gltf-transform/extensions": "^4.3.0",
+    "@gltf-transform/functions": "^4.3.0",
+    "@monogrid/gainmap-js": "^3.4.0",
+    "draco3d": "^1.5.7",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.23",
+    "meshoptimizer": "^1.1.1",
+    "postprocessing": "^6.39.1",
+    "sharp": "^0.34.5",
+    "three": "^0.184.0"
+  }
+}
