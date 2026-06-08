@@ -480,35 +480,40 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
   position:fixed; top:0; left:50%; z-index:300;
   width:min(600px, 96vw);
   height:100dvh; max-height:100dvh;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
   transform:translateX(-50%) translateY(40px);
   opacity:0; pointer-events:none;
   transition:opacity .35s var(--ease), transform .4s cubic-bezier(.22,1,.36,1);
-  display:flex; flex-direction:column;
 }
 .checkout-modal.open{
   opacity:1; pointer-events:auto;
   transform:translateX(-50%) translateY(0);
 }
 
+/* Fila sticky para el botón X */
+.checkout-close-row{
+  position:sticky; top:8px; z-index:10;
+  display:flex; justify-content:flex-end;
+  padding:4px 8px;
+  pointer-events:none;
+}
 .checkout-close{
-  position:sticky; top:12px; left:calc(100% - 44px); z-index:10;
+  pointer-events:auto;
   width:36px; height:36px; border-radius:50%;
   background:#fff; border:none; cursor:pointer;
   display:flex; align-items:center; justify-content:center;
-  color:#5a4a3a; box-shadow:0 2px 12px rgba(0,0,0,.18);
+  color:#5a4a3a; box-shadow:0 2px 12px rgba(0,0,0,.22);
   transition:color .2s, transform .2s, background .2s;
-  flex-shrink:0; margin-left:auto; margin-right:8px; margin-top:8px;
 }
 .checkout-close:hover{ color:#1a1a1a; transform:rotate(90deg); background:#FAF7F0; }
 
 .checkout-body{
-  flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
-  background:#FAF7F0;
+  background:#F5EFE6;
   border-radius:20px;
-  padding:0 0 32px;
-  margin:0 0 8px;
+  padding:0 0 40px;
   box-shadow:0 24px 80px rgba(0,0,0,.28);
-  scroll-behavior:smooth;
+  /* El close-row sticky flota encima del body */
 }
 
 /* Header — blanco como wisks.co */
@@ -766,15 +771,15 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 .checkout-btn-wa:hover{ background:#333; transform:translateY(-2px); }
 
 /* ============================================================
-   WHATSAPP FLOTANTE (FASE 7A)
+   BOTÓN FLOTANTE + POPUP CONTACTO (FASE 7A)
 ============================================================ */
 .wa-float{
   position:fixed; bottom:28px; right:28px; z-index:190;
   width:54px; height:54px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   background:#F0E8D5; color:#1a1a1a;
-  text-decoration:none;
-  box-shadow:0 4px 20px rgba(0,0,0,.18);
+  border:none; cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.20);
   opacity:0; pointer-events:none;
   transform:translateY(12px) scale(.96);
   transition:opacity .4s var(--ease), transform .4s var(--ease), background .25s, box-shadow .25s;
@@ -784,12 +789,64 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 }
 .wa-float:hover{
   background:#E8DCC8;
-  box-shadow:0 6px 28px rgba(0,0,0,.22);
+  box-shadow:0 6px 28px rgba(0,0,0,.26);
   transform:translateY(-3px) scale(1.05);
 }
 .wa-float-label{ display:none; }
 @media(max-width:480px){
   .wa-float{ width:50px; height:50px; bottom:20px; right:20px; }
+}
+
+/* Popup de contacto */
+.contact-popup{
+  position:fixed; bottom:96px; right:28px; z-index:191;
+  width:260px;
+  background:#fff;
+  border-radius:20px;
+  padding:20px 20px 16px;
+  box-shadow:0 8px 40px rgba(0,0,0,.18);
+  border:1px solid rgba(200,184,154,.25);
+  opacity:0; pointer-events:none;
+  transform:translateY(10px) scale(.97);
+  transition:opacity .3s var(--ease), transform .3s var(--ease);
+}
+.contact-popup.open{
+  opacity:1; pointer-events:auto; transform:translateY(0) scale(1);
+}
+.contact-popup-close{
+  position:absolute; top:10px; right:10px;
+  width:28px; height:28px; border-radius:50%;
+  background:#F5EFE6; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  color:#8a7a62;
+  transition:background .2s, color .2s;
+}
+.contact-popup-close:hover{ background:#E8DCC8; color:#1a1a1a; }
+.contact-popup-eyebrow{
+  font-family:var(--font-body); font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.12em; color:#8a7a62;
+  margin:0 0 4px;
+}
+.contact-popup-title{
+  font-family:var(--font-head); font-size:18px; font-weight:700;
+  color:#1a1a1a; margin:0 0 6px; line-height:1.2;
+}
+.contact-popup-sub{
+  font-family:var(--font-body); font-size:12px; color:#8a7a62;
+  margin:0 0 16px; line-height:1.5;
+}
+.contact-popup-wa-btn{
+  display:flex; align-items:center; gap:9px;
+  width:100%; padding:13px 16px;
+  background:#1a1a1a; color:#fff;
+  border-radius:999px; text-decoration:none;
+  font-family:var(--font-body); font-size:13px; font-weight:700;
+  letter-spacing:.02em;
+  transition:background .25s, transform .2s;
+}
+.contact-popup-wa-btn:hover{ background:#333; transform:translateY(-1px); }
+@media(max-width:480px){
+  .contact-popup{ right:16px; bottom:84px; width:240px; }
 }
 
 /* Botón WhatsApp en card de producto */
