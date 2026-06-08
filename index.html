@@ -202,7 +202,39 @@
       </div>
     </section>
 
-    <!-- SECCIÓN B — QR Nequi -->
+    <!-- SECCIÓN B — Información de envío -->
+    <section class="checkout-section checkout-section-delivery">
+      <div class="checkout-section-label">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Información de envío
+      </div>
+      <p class="checkout-section-sub">Por favor completa estos datos para coordinar tu entrega 🛵</p>
+      <form class="checkout-delivery-form" id="checkoutDeliveryForm" novalidate>
+        <div class="checkout-field">
+          <label class="checkout-label" for="deliveryNombre">Nombre completo *</label>
+          <input class="checkout-input" id="deliveryNombre" name="nombre" type="text" placeholder="Ej: María González" required autocomplete="name"/>
+        </div>
+        <div class="checkout-field">
+          <label class="checkout-label" for="deliveryDireccion">Dirección completa *</label>
+          <input class="checkout-input" id="deliveryDireccion" name="direccion" type="text" placeholder="Ej: Calle 10 # 43A-25, El Poblado" required autocomplete="street-address"/>
+        </div>
+        <div class="checkout-field">
+          <label class="checkout-label" for="deliveryApto">Apartamento / Casa</label>
+          <input class="checkout-input" id="deliveryApto" name="apto" type="text" placeholder="Ej: Apto 301 o Casa 5" autocomplete="address-line2"/>
+        </div>
+        <div class="checkout-field">
+          <label class="checkout-label" for="deliveryUnidad">Nombre del conjunto / unidad residencial</label>
+          <input class="checkout-input" id="deliveryUnidad" name="unidad" type="text" placeholder="Ej: Conjunto Los Laureles"/>
+        </div>
+        <div class="checkout-field">
+          <label class="checkout-label" for="deliveryFecha">¿Para cuándo deseas tu pedido? *</label>
+          <input class="checkout-input" id="deliveryFecha" name="fecha" type="text" placeholder="Ej: Sábado 14 de junio, en la tarde" required/>
+        </div>
+        <p class="checkout-delivery-note">🛵 El envío se realiza mediante UBER y se paga aparte.</p>
+      </form>
+    </section>
+
+    <!-- SECCIÓN C — QR Nequi -->
     <section class="checkout-section checkout-section-qr">
       <h3 class="checkout-section-title">✨ Paga tu pedido por transferencia</h3>
       <p class="checkout-section-sub">Escanea este código QR desde tu app bancaria para transferir el monto total</p>
@@ -963,21 +995,55 @@
     /* Total QR box */
     document.getElementById('checkoutQrTotal').textContent = fmt(subtotal);
 
-    /* WhatsApp URL */
-    const productLines = cart.map(function(i){
-      return '✅ ' + i.qty + ' × ' + i.name + ' — ' + fmt(i.price) + ' c/u — Subtotal: ' + fmt(i.price*i.qty);
-    }).join('\n');
-    const waMsg =
-      'Hola WHISK! 👋\n' +
-      'Acabo de realizar el pago de mi pedido. Adjunto el comprobante.\n\n' +
-      '📋 RESUMEN DEL PEDIDO:\n' +
-      '📦 Número de orden: ' + orderNum + '\n' +
-      '📅 Fecha: ' + fmtDate(now) + '\n\n' +
-      '🛒 PRODUCTOS:\n' + productLines + '\n\n' +
-      '💰 TOTAL PAGADO: ' + fmt(subtotal) + '\n' +
-      '💳 Método: Transferencia Nequi\n\n' +
-      'Por favor confirmen la recepción del pago. ¡Gracias! 🍰✨';
-    waBtn.href = 'https://api.whatsapp.com/send?phone=573016003637&text=' + encodeURIComponent(waMsg);
+    /* WhatsApp URL — se construye al hacer clic para incluir los datos del form */
+    function buildWaMsg(){
+      const form = document.getElementById('checkoutDeliveryForm');
+      const nombre   = form ? (form.querySelector('#deliveryNombre')?.value.trim()   || '') : '';
+      const direccion= form ? (form.querySelector('#deliveryDireccion')?.value.trim()|| '') : '';
+      const apto     = form ? (form.querySelector('#deliveryApto')?.value.trim()     || '') : '';
+      const unidad   = form ? (form.querySelector('#deliveryUnidad')?.value.trim()   || '') : '';
+      const fecha    = form ? (form.querySelector('#deliveryFecha')?.value.trim()    || '') : '';
+
+      const productLines = cart.map(function(i){
+        return '✅ ' + i.qty + ' × ' + i.name + ' — ' + fmt(i.price) + ' c/u — Subtotal: ' + fmt(i.price*i.qty);
+      }).join('\n');
+
+      return 'Hola WHISK! 👋 Adjunto el comprobante de pago. Aquí está el resumen de mi compra:\n\n' +
+        '🧾 RESUMEN DEL PEDIDO\n' +
+        '📦 Número de pedido: ' + orderNum + '\n' +
+        '📅 Fecha y hora: ' + fmtDate(now) + '\n\n' +
+        '🛒 PRODUCTOS COMPRADOS:\n' + productLines + '\n\n' +
+        '🧮 TOTALES:\n' +
+        'Subtotal: ' + fmt(subtotal) + '\n' +
+        'Envío (UBER): Se paga aparte\n' +
+        '💵 TOTAL A PAGAR: ' + fmt(subtotal) + '\n\n' +
+        '💳 Método de pago: Nequi\n\n' +
+        '📍 INFORMACIÓN DE ENVÍO (Por favor coordinar):\n' +
+        '• Nombre completo: ' + (nombre || '—') + '\n' +
+        '• Dirección completa: ' + (direccion || '—') + '\n' +
+        (apto    ? '• Apartamento/Casa: ' + apto + '\n' : '') +
+        (unidad  ? '• Conjunto/Unidad: ' + unidad + '\n' : '') +
+        '• ¿Para cuándo?: ' + (fecha || '—') + '\n\n' +
+        '🍰✨ WHISK — Little Bites & Big Bliss';
+    }
+
+    /* Actualizar href al hacer clic en el botón de WhatsApp */
+    waBtn.addEventListener('click', function(e){
+      const form = document.getElementById('checkoutDeliveryForm');
+      if(form){
+        const nombre    = form.querySelector('#deliveryNombre')?.value.trim();
+        const direccion = form.querySelector('#deliveryDireccion')?.value.trim();
+        const fecha     = form.querySelector('#deliveryFecha')?.value.trim();
+        if(!nombre || !direccion || !fecha){
+          e.preventDefault();
+          form.querySelector(!nombre ? '#deliveryNombre' : !direccion ? '#deliveryDireccion' : '#deliveryFecha').focus();
+          const note = form.querySelector('.checkout-delivery-note');
+          if(note){ note.style.color='#c0392b'; note.textContent='⚠️ Por favor completa nombre, dirección y cuándo quieres tu pedido antes de enviar.'; setTimeout(function(){ note.style.color=''; note.textContent='🛵 El envío se realiza mediante UBER y se paga aparte.'; },4000); }
+          return;
+        }
+      }
+      this.href = 'https://api.whatsapp.com/send?phone=573016003637&text=' + encodeURIComponent(buildWaMsg());
+    });
 
     /* Mostrar */
     overlay.classList.add('open');
