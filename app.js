@@ -14,8 +14,9 @@
 
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const isTouch = matchMedia('(hover:none) and (pointer:coarse)').matches;
-  const reduce  = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isTouch  = matchMedia('(hover:none) and (pointer:coarse)').matches;
+  const reduce   = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const IS_MOBILE = isTouch || matchMedia('(max-width: 880px)').matches;
 
   /* ============================================================
      PRELOADER — driven by real GLB load progress (12 models)
