@@ -22,7 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Pinyon+Script&family=Manrope:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;500;600&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet" />
 
 <!-- FASE 10 — Critical CSS first (styles.css), rest async -->
-<link rel="stylesheet" href="./styles.css?v=4" />
+<link rel="stylesheet" href="./styles.css?v=5" />
 
 <!-- Lenis smooth scroll v1.3.23 (local — UMD, exposes global Lenis) -->
 <script src="./assets/lenis.min.js"></script>
@@ -158,6 +158,7 @@
     <!-- Header -->
     <div class="checkout-header">
       <div class="checkout-logo">WHISK</div>
+      <div class="checkout-logo-line" aria-hidden="true"></div>
       <h2 class="checkout-title">Finaliza tu <em>Pedido</em></h2>
       <p class="checkout-subtitle">Sigue estos pasos para completar tu compra</p>
     </div>
@@ -937,19 +938,29 @@
     document.getElementById('checkoutOrderNum').textContent = '📦 ' + orderNum;
     document.getElementById('checkoutTotalPreview').textContent = fmt(subtotal);
 
-    /* Items — Sección A */
+    /* Items — Sección A (estructura igual a wisks.co) */
     const ul = document.getElementById('checkoutItems');
     ul.innerHTML = '';
     cart.forEach(function(item){
       const li = document.createElement('li');
       li.className = 'checkout-item';
+      const desc = item.description || '';
       li.innerHTML =
-        '<img class="checkout-item-img" src="' + (item.image||'') + '" alt="' + item.name + '" loading="lazy" onerror="this.style.background=\'#F0E8D5\';this.src=\'\'">' +
-        '<div>' +
-          '<p class="checkout-item-name">' + item.name + '</p>' +
-          '<p class="checkout-item-detail">× ' + item.qty + ' — ' + fmt(item.price) + ' c/u</p>' +
-        '</div>' +
-        '<span class="checkout-item-subtotal">' + fmt(item.price * item.qty) + '</span>';
+        '<div class="checkout-item-card">' +
+          '<div class="checkout-item-top">' +
+            '<img class="checkout-item-img" src="' + (item.image||'') + '" alt="' + item.name + '" loading="lazy" onerror="this.style.background=\'#F0E8D5\';this.src=\'\'">' +
+            '<div class="checkout-item-info">' +
+              '<p class="checkout-item-name">🍰 ' + item.name + '</p>' +
+              (desc ? '<p class="checkout-item-desc">📦 ' + desc + '</p>' : '') +
+              '<p class="checkout-item-qty-row">Cantidad: ' + item.qty + ' &nbsp; 💰 ' + fmt(item.price) + ' c/u</p>' +
+            '</div>' +
+            '<div class="checkout-item-right">' +
+              '<p class="checkout-item-subtotal-label">Subtotal</p>' +
+              '<p class="checkout-item-subtotal-val">' + fmt(item.price * item.qty) + '</p>' +
+            '</div>' +
+          '</div>' +
+          '<p class="checkout-item-summary">✅ ' + item.qty + ' × ' + item.name + (desc ? ' — ' + desc : '') + ' — ' + fmt(item.price) + ' c/u — Subtotal: ' + fmt(item.price*item.qty) + '</p>' +
+        '</div>';
       ul.appendChild(li);
     });
 
@@ -1185,20 +1196,30 @@
       cart.forEach(function(item){
         const li = document.createElement('li');
         li.className = 'cart-item';
+        /* Estructura de tarjeta blanca idéntica a wisks.co */
         li.innerHTML =
-          '<img class="cart-item-img" src="' + (item.image || '') + '" alt="' + item.name + '" loading="lazy" onerror="this.style.background=\'#F0E8D5\';this.src=\'\'">' +
-          '<div class="cart-item-info">' +
-            '<p class="cart-item-name">' + item.name + '</p>' +
-            '<p class="cart-item-price">' + fmtPrice(item.price) + '</p>' +
-            '<div class="cart-item-qty">' +
-              '<button class="cart-qty-btn" data-id="' + item.id + '" data-action="minus" aria-label="Reducir cantidad" type="button">−</button>' +
-              '<span class="cart-qty-num">' + item.qty + '</span>' +
-              '<button class="cart-qty-btn" data-id="' + item.id + '" data-action="plus" aria-label="Aumentar cantidad" type="button">+</button>' +
+          /* Fila 1: imagen + info + subtotal */
+          '<div class="cart-item-row1">' +
+            '<img class="cart-item-img" src="' + (item.image||'') + '" alt="' + item.name + '" loading="lazy" onerror="this.style.background=\'#F0E8D5\';this.src=\'\'">' +
+            '<div class="cart-item-info">' +
+              '<p class="cart-item-name">' + item.name + '</p>' +
+              '<p class="cart-item-price">' + fmtPrice(item.price) + '</p>' +
+            '</div>' +
+            '<div style="text-align:right;flex-shrink:0;">' +
+              '<p class="cart-item-subtotal-label">Subtotal: ' + fmtPrice(item.price * item.qty) + '</p>' +
             '</div>' +
           '</div>' +
-          '<button class="cart-item-remove" data-id="' + item.id + '" data-action="remove" aria-label="Eliminar ' + item.name + '" type="button">' +
-            '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-          '</button>';
+          /* Fila 2: qty controles + trash */
+          '<div class="cart-item-row2">' +
+            '<div class="cart-item-qty">' +
+              '<button class="cart-qty-btn" data-id="' + item.id + '" data-action="minus" aria-label="Reducir" type="button">−</button>' +
+              '<span class="cart-qty-num">' + item.qty + '</span>' +
+              '<button class="cart-qty-btn" data-id="' + item.id + '" data-action="plus" aria-label="Aumentar" type="button">+</button>' +
+            '</div>' +
+            '<button class="cart-item-remove" data-id="' + item.id + '" data-action="remove" aria-label="Eliminar" type="button">' +
+              '<svg viewBox="0 0 24 24" width="17" height="17" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</button>' +
+          '</div>';
         itemsList.appendChild(li);
       });
     }
