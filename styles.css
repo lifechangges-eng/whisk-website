@@ -50,6 +50,12 @@
   --ease-emph: cubic-bezier(.7,0,.2,1);   /* easing editorial enfático */
 
   --maxw: 1320px;
+
+  /* ── Aliases para carrito / checkout (usados por el sistema de pedidos) ── */
+  --font-head:   "Playfair Display", "Times New Roman", serif;
+  --font-body:   "Manrope", system-ui, -apple-system, sans-serif;
+  --font-script: "Pinyon Script", cursive;
+  --gold:        #C9A96E;   /* color dorado precios wisks.co */
 }
 
 *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0 }
@@ -287,12 +293,22 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 }
 .cart-drawer-title{
   display:flex; align-items:center; gap:10px;
-  font-family:var(--font-head); font-size:15px; font-weight:700;
+  font-family:var(--font-head); font-size:16px; font-weight:700;
   color:#1a1a1a; letter-spacing:.01em;
 }
-.cart-drawer-title svg{ color:#8a7a62; flex-shrink:0; }
-.cart-drawer-count{ color:#8a7a62; font-size:13px; font-weight:400; }
-.cart-drawer-count em{ font-style:normal; }
+.cart-drawer-title svg{ color:#1a1a1a; flex-shrink:0; }
+.cart-title-text{ font-family:var(--font-head); font-size:18px; font-weight:700; color:#1a1a1a; }
+.cart-title-script{
+  font-family:var(--font-script); font-style:normal; font-weight:400;
+  font-size:22px; color:var(--gold); letter-spacing:.01em;
+}
+.cart-drawer-badge{
+  display:inline-block; background:#1a1a1a; color:#fff;
+  border-radius:999px; padding:3px 12px;
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  letter-spacing:.02em;
+}
+.cart-drawer-badge em{ font-style:normal; }
 .cart-drawer-close{
   width:36px; height:36px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
@@ -362,8 +378,8 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
   margin:0 0 4px;
 }
 .cart-item-price{
-  font-family:var(--font-head); font-style:italic;
-  font-size:13px; color:var(--beige); margin:0 0 8px;
+  font-family:var(--font-script); font-style:normal;
+  font-size:17px; color:var(--gold); margin:0 0 8px;
 }
 .cart-item-qty{
   display:flex; align-items:center; gap:8px;
@@ -403,8 +419,8 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
   text-transform:uppercase; letter-spacing:.08em; color:#5a4a3a;
 }
 .cart-subtotal-price{
-  font-family:var(--font-head); font-style:italic;
-  font-size:20px; color:#8a7a62;
+  font-family:var(--font-script); font-style:normal;
+  font-size:22px; color:var(--gold);
 }
 .cart-footer-note{
   font-family:var(--font-body); font-size:11px; color:#b0a090;
@@ -444,7 +460,7 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 .checkout-modal{
   position:fixed; top:0; left:50%; z-index:300;
   width:min(600px, 96vw);
-  max-height:100dvh;
+  height:100dvh; max-height:100dvh;
   transform:translateX(-50%) translateY(40px);
   opacity:0; pointer-events:none;
   transition:opacity .35s var(--ease), transform .4s cubic-bezier(.22,1,.36,1);
@@ -467,7 +483,7 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 .checkout-close:hover{ color:#1a1a1a; transform:rotate(90deg); background:#FAF7F0; }
 
 .checkout-body{
-  flex:1; overflow-y:auto;
+  flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   background:#FAF7F0;
   border-radius:20px;
   padding:0 0 32px;
@@ -568,15 +584,15 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
   font-family:var(--font-body); font-size:13px; color:#5a4a3a;
   border-top:1px solid rgba(200,184,154,.2);
 }
-.checkout-envio-val{ color:#2d8a4e; font-weight:600; }
+.checkout-envio-val{ font-family:var(--font-script); font-size:17px; color:var(--gold); font-weight:400; }
 .checkout-total-big{
   font-weight:700; font-size:15px; color:#1a1a1a;
   border-top:2px solid rgba(200,184,154,.4) !important;
   padding-top:10px !important;
 }
 .checkout-total-big span:last-child{
-  font-family:var(--font-head); font-style:italic;
-  font-size:20px; color:#8a7a62;
+  font-family:var(--font-script); font-style:normal;
+  font-size:22px; color:var(--gold);
 }
 .checkout-note-yellow{
   background:#fffbeb; border:1px solid #f0d060; border-radius:10px;
@@ -660,14 +676,14 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 .checkout-copy-btn.copied{ color:#2d8a4e; border-color:#2d8a4e; }
 
 .checkout-total-box{
-  background:linear-gradient(135deg,#2a2218,#1a1a1a);
+  background:#FAF6F1; border:1.5px solid rgba(200,184,154,.4);
   border-radius:10px; padding:14px 18px;
-  font-family:var(--font-body); font-size:13px; color:rgba(255,255,255,.7);
-  margin-bottom:12px;
+  font-family:var(--font-body); font-size:14px; color:#1a1a1a; font-weight:600;
+  margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;
 }
 .checkout-total-box span{
-  font-family:var(--font-head); font-style:italic;
-  font-size:22px; color:#C8B89A; margin-left:8px;
+  font-family:var(--font-script); font-style:normal;
+  font-size:24px; color:var(--gold); margin-left:8px;
 }
 .checkout-note-important{
   background:#fff8e6; border:1px solid #f5c842; border-radius:10px;
@@ -708,23 +724,23 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
 .checkout-btn-wa{
   display:flex; align-items:center; justify-content:center; gap:9px;
   padding:15px; border-radius:999px;
-  background:#25D366; color:#fff;
+  background:#1a1a1a; color:#fff;
   font-family:var(--font-body); font-size:13px; font-weight:700;
   letter-spacing:.04em; text-decoration:none;
   transition:background .25s, transform .2s;
 }
-.checkout-btn-wa:hover{ background:#1ebe5c; transform:translateY(-2px); }
+.checkout-btn-wa:hover{ background:#333; transform:translateY(-2px); }
 
 /* ============================================================
    WHATSAPP FLOTANTE (FASE 7A)
 ============================================================ */
 .wa-float{
   position:fixed; bottom:28px; right:28px; z-index:190;
-  display:flex; align-items:center; gap:10px;
-  background:#25D366; color:#fff;
-  padding:13px 18px 13px 15px; border-radius:999px;
+  width:54px; height:54px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:#F0E8D5; color:#1a1a1a;
   text-decoration:none;
-  box-shadow:0 4px 24px rgba(37,211,102,.40), 0 2px 8px rgba(0,0,0,.18);
+  box-shadow:0 4px 20px rgba(0,0,0,.18);
   opacity:0; pointer-events:none;
   transform:translateY(12px) scale(.96);
   transition:opacity .4s var(--ease), transform .4s var(--ease), background .25s, box-shadow .25s;
@@ -733,28 +749,13 @@ input,select,textarea{ font:inherit; color:inherit; cursor:none; }
   opacity:1; pointer-events:auto; transform:translateY(0) scale(1);
 }
 .wa-float:hover{
-  background:#1ebe5c;
-  box-shadow:0 6px 30px rgba(37,211,102,.55), 0 2px 8px rgba(0,0,0,.18);
-  transform:translateY(-3px) scale(1.03);
+  background:#E8DCC8;
+  box-shadow:0 6px 28px rgba(0,0,0,.22);
+  transform:translateY(-3px) scale(1.05);
 }
-.wa-float-label{
-  font-family:var(--font-body); font-size:13px; font-weight:600;
-  letter-spacing:.02em; white-space:nowrap;
-}
-/* Pulso de anillo */
-.wa-float::before{
-  content:''; position:absolute; inset:-6px; border-radius:999px;
-  border:2px solid rgba(37,211,102,.45);
-  animation:wa-pulse 2.4s ease-out infinite;
-}
-@keyframes wa-pulse{
-  0%{ transform:scale(1); opacity:.7; }
-  70%{ transform:scale(1.14); opacity:0; }
-  100%{ transform:scale(1.14); opacity:0; }
-}
+.wa-float-label{ display:none; }
 @media(max-width:480px){
-  .wa-float-label{ display:none; }
-  .wa-float{ padding:14px; }
+  .wa-float{ width:50px; height:50px; bottom:20px; right:20px; }
 }
 
 /* Botón WhatsApp en card de producto */
