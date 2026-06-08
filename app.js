@@ -849,7 +849,7 @@ ${msg ? 'Detalles: ' + msg : ''}`.trim();
   }
 
   // ── Intersection Observer para pausar About 3D whisk cuando está off-screen ──
-  const aboutCanvas = $('#aboutCanvas');
+  const aboutCanvas2 = $('#aboutCanvas');
   if (aboutCanvas && 'IntersectionObserver' in window) {
     const aboutIO = new IntersectionObserver(entries => {
       entries.forEach(e => {
