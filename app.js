@@ -199,11 +199,23 @@
   /* Guía 2 FASE 0B — solo renderizar la BakeScene cuando .sequence está visible */
   const sequenceEl = $('.sequence');
   if (sequenceEl && 'IntersectionObserver' in window) {
+    // rootMargin '600px' — preload stages 2-5 models before user arrives
+    const lazyIO = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          bake.loadLateModels?.();
+          obs.disconnect();
+        }
+      });
+    }, { rootMargin: '600px 0px' });
+    lazyIO.observe(sequenceEl);
+
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => bake.setSequenceVisible?.(e.isIntersecting));
     }, { rootMargin: '200px 0px' });
     io.observe(sequenceEl);
   } else {
+    bake.loadLateModels?.();
     bake.setSequenceVisible?.(true);
   }
 
@@ -863,10 +875,16 @@ ${msg ? 'Detalles: ' + msg : ''}`.trim();
   /* ============================================================
      WAIT for 3D models, then reveal
   ============================================================ */
+  // Timeout de 4 segundos: si los modelos no cargaron, la página entra igual
+  const LOAD_TIMEOUT = 4000;
+  const timeoutPromise = new Promise(res => setTimeout(res, LOAD_TIMEOUT));
   try {
-    await Promise.all([bake.ready, hero.ready]);
+    await Promise.race([
+      Promise.all([bake.ready, hero.ready]),
+      timeoutPromise,
+    ]);
   } catch (err) {
-    console.error('Model load error:', err);
+    console.warn('Model load error (entering anyway):', err);
   }
   // Ensure bar visually reaches 100% even if onProgress rounded down
   setProgress(100);

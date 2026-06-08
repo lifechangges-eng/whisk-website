@@ -12,6 +12,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 /* ------------------------------------------------------------
@@ -141,6 +142,10 @@ function cropBottom(mesh, cropRatio = 0.22) {
 class ModelManager {
   constructor() {
     this.loader = new GLTFLoader();
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    draco.preload();
+    this.loader.setDRACOLoader(draco);
     this.loader.setMeshoptDecoder(MeshoptDecoder);
     this.cache = new Map();
   }
@@ -677,29 +682,41 @@ export class BakeScene {
 
     this.addLights();
 
-    // Guía 2 FASE 2 — modelos usados por las 5 etapas (sin barba: solo va en el Hero como nube)
-    const urls = [
-      { url: M.brownie,      options: { cropPlate: 0.34 } },
-      { url: M.melokis,      options: { cropPlate: 0.18 } },
-      { url: M.tejas,        options: { cropPlate: 0.20 } },
-      { url: M.mille,        options: { cropPlate: 0.38 } },  // FIX 0.22→0.38: removes base props (chocolate chunk / jar)
-      { url: M.petalos,      options: { cropPlate: 0.42 } },
-      { url: M.nuez,         options: { cropPlate: 0.55 } },  // crop fuerte: aísla ~1 nuez de la fila
-      { url: M.batidora,     options: { cropPlate: 0.05 } },  // batidora KitchenAid (decoración Stage 3)
-      // M.horno eliminado: el horno ahora es 100% procedural (Corrección 6/10)
-      { url: M.bandeja,      options: { cropPlate: 0.20 } },  // FIX 0.12→0.20: removes tray base props
-      // M.cuchara eliminado: azúcar removida del Stage 2 (Corrección 7/10)
+    // Stage 1 models only — load immediately so hero is visible fast.
+    // Stages 2-5 load lazily via loadLateModels() triggered on scroll.
+    const stage1Urls = [
+      { url: M.brownie,  options: { cropPlate: 0.34 } },
+      { url: M.melokis,  options: { cropPlate: 0.18 } },
+      { url: M.tejas,    options: { cropPlate: 0.20 } },
+      { url: M.mille,    options: { cropPlate: 0.38 } },
+      { url: M.petalos,  options: { cropPlate: 0.42 } },
     ];
-    await modelManager.loadAll(urls, this.onProgress);
+    await modelManager.loadAll(stage1Urls, this.onProgress);
 
     this.buildStage1();
+    // stage2-5 will be built after loadLateModels() resolves
+    this.stage2 = null; this.stage3 = null; this.stage4 = null; this.stage5 = null;
+    this.ovenGroup = null; this.mixer = null;
+    this._lateLoaded = false;
+
+    this.bind();
+    this.tick();
+  }
+
+  /** Lazy-load models for stages 2-5. Called when .sequence enters the viewport. */
+  async loadLateModels() {
+    if (this._lateLoaded) return;
+    this._lateLoaded = true;
+    const lateUrls = [
+      { url: M.nuez,    options: { cropPlate: 0.55 } },
+      { url: M.batidora, options: { cropPlate: 0.05 } },
+      { url: M.bandeja,  options: { cropPlate: 0.20 } },
+    ];
+    await modelManager.loadAll(lateUrls);
     this.buildStage2();
     this.buildStage3();
     this.buildStage4();
     this.buildStage5();
-
-    this.bind();
-    this.tick();
   }
 
   addLights() {
@@ -1227,14 +1244,14 @@ export class BakeScene {
     // p=0.60-0.62 is a brief dark cinematic cut between the two scenes.
     // Bowl and oven NEVER coexist (was overlapping for 7% of scroll).
     this.stage1.visible = p < 0.25;
-    this.stage2.visible = p > 0.18 && p < 0.60;   // bowl/ingredients — exits at 0.60
-    this.stage3.visible = p > 0.38 && p < 0.60;   // whisk exits with bowl
-    this.stage4.visible = p > 0.60 && p < 0.80;   // tray scene
-    this.stage5.visible = p > 0.73;               // products fly out
+    if (this.stage2) this.stage2.visible = p > 0.18 && p < 0.60;   // bowl/ingredients — exits at 0.60
+    if (this.stage3) this.stage3.visible = p > 0.38 && p < 0.60;   // whisk exits with bowl
+    if (this.stage4) this.stage4.visible = p > 0.60 && p < 0.80;   // tray scene
+    if (this.stage5) this.stage5.visible = p > 0.73;               // products fly out
     // Mixer removed from scene — never visible
     if (this.mixer) this.mixer.visible = false;
     // Oven appears at 0.62 (after bowl gone at 0.60) — cinematic cut gap preserved
-    this.ovenGroup.visible = p > 0.62;
+    if (this.ovenGroup) this.ovenGroup.visible = p > 0.62;
 
     // Cinematic camera arc — front-facing throughout for stages 4 + 5
     if (p < 0.20) {
@@ -1261,10 +1278,10 @@ export class BakeScene {
     }
 
     if (this.stage1.visible) this.animateStage1(t1, p);
-    if (this.stage2.visible) this.animateStage2(t2, p);
-    if (this.stage3.visible) this.animateStage3(t3, p);
-    if (this.stage4.visible) this.animateStage4(t4, p);
-    if (this.stage5.visible) this.animateStage5(t5, p);
+    if (this.stage2?.visible) this.animateStage2(t2, p);
+    if (this.stage3?.visible) this.animateStage3(t3, p);
+    if (this.stage4?.visible) this.animateStage4(t4, p);
+    if (this.stage5?.visible) this.animateStage5(t5, p);
 
     // FASE 10 — Descargar geometrías de stages que ya pasaron permanentemente.
     // Solo se ejecuta una vez por stage (flag _disposed). Libera memoria GPU.
